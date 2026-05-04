@@ -1,0 +1,140 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">{{ __('Register') }}</div>
+
+                <div class="card-body">
+                    <form method="POST" action="{{ route('register') }}">
+                        @csrf
+
+                        <div class="form-group row">
+                            <label for="name" class="col-md-4 col-form-label text-md-right">{{ __('Name') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
+
+                                @error('name')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
+
+                                @error('email')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
+
+                                @error('password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                                <small class="form-text text-muted">
+                                    <strong>Password Requirements:</strong><br>
+                                    <span id="req-length" class="text-danger">• Minimum 12 characters</span><br>
+                                    <span id="req-case" class="text-danger">• Contains uppercase & lowercase letters</span><br>
+                                    <span id="req-number" class="text-danger">• Contains numbers</span><br>
+                                    <span id="req-symbol" class="text-danger">• Contains symbols</span>
+                                </small>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const passwordInput = document.querySelector('input[name="password"]');
+                                        const reqLength = document.getElementById('req-length');
+                                        const reqCase = document.getElementById('req-case');
+                                        const reqNumber = document.getElementById('req-number');
+                                        const reqSymbol = document.getElementById('req-symbol');
+
+                                        function checkPasswordStrength(password) {
+                                            // Check length
+                                            if (password.length >= 12) {
+                                                reqLength.className = 'text-success';
+                                                reqLength.innerHTML = '• Minimum 12 characters ✓';
+                                            } else {
+                                                reqLength.className = 'text-danger';
+                                                reqLength.innerHTML = '• Minimum 12 characters';
+                                            }
+
+                                            // Check for uppercase and lowercase
+                                            const hasUpper = /[A-Z]/.test(password);
+                                            const hasLower = /[a-z]/.test(password);
+                                            if (hasUpper && hasLower) {
+                                                reqCase.className = 'text-success';
+                                                reqCase.innerHTML = '• Contains uppercase & lowercase letters ✓';
+                                            } else {
+                                                reqCase.className = 'text-danger';
+                                                reqCase.innerHTML = '• Contains uppercase & lowercase letters';
+                                            }
+
+                                            // Check for numbers
+                                            if (/[0-9]/.test(password)) {
+                                                reqNumber.className = 'text-success';
+                                                reqNumber.innerHTML = '• Contains numbers ✓';
+                                            } else {
+                                                reqNumber.className = 'text-danger';
+                                                reqNumber.innerHTML = '• Contains numbers';
+                                            }
+
+                                            // Check for symbols
+                                            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+                                                reqSymbol.className = 'text-success';
+                                                reqSymbol.innerHTML = '• Contains symbols ✓';
+                                            } else {
+                                                reqSymbol.className = 'text-danger';
+                                                reqSymbol.innerHTML = '• Contains symbols';
+                                            }
+                                        }
+
+                                        if (passwordInput) {
+                                            passwordInput.addEventListener('input', function() {
+                                                checkPasswordStrength(this.value);
+                                            });
+                                        }
+                                    });
+                                </script>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="password-confirm" class="col-md-4 col-form-label text-md-right">{{ __('Confirm Password') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-0">
+                            <div class="col-md-6 offset-md-4">
+                                <button type="submit" class="btn btn-primary">
+                                    {{ __('Register') }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
