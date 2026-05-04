@@ -683,7 +683,7 @@ class ComplaintlistController extends Controller
                                     ['user_id' => $staff]
                                   );
 
-      // Hantar emel notification jika pelaksana baru ditukar oleh Penyelaras Aduan
+      // Hantar emel notifikasi jika pelaksana baru ditukar oleh Penyelaras Aduan
       if ($oldStaff != $staff) {
           $assignedStaff = User::find($staff);
           if ($assignedStaff && $assignedStaff->email) {
