@@ -674,10 +674,42 @@ class ComplaintlistController extends Controller
       $compl = Complaintlist::where('id', $id)
                             ->first();
     
+      // Dapatkan maklumat pelaksana pegawai teknikal sebelum kemaskini
+      $existingTask = Task::where('complaint_id', $id)->first();
+      $oldStaff = $existingTask ? $existingTask->user_id : null;
+
       $task = Task::updateOrCreate(
                                     ['complaint_id' => $id],
                                     ['user_id' => $staff]
                                   );
+
+      // Hantar emel notification jika pelaksana baru ditukar oleh Penyelaras Aduan
+      if ($oldStaff != $staff) {
+          $assignedStaff = User::find($staff);
+          if ($assignedStaff && $assignedStaff->email) {
+              $lokasi = '';
+              if($compl->block != '')
+                $lokasi = "Blok ".$compl->block;
+              if($compl->level != '')
+                $lokasi .= ", ".$compl->level;
+              if($compl->zone != '')
+                $lokasi .= ", Zon ".$compl->zone;
+
+              $data = [
+                'id' => $id,
+                'app_no' => $compl->application_no,
+                'name' => $compl->name,
+                'remarks' => $compl->remarks,
+                'sector' => Utilities::getSector($compl->sector_code),
+                'department' => Utilities::getDepartment($compl->department_code),
+                'lokasi' => $lokasi,
+                'location' => $compl->location
+              ];
+              
+              // Hantar emel menggunakan template NotifyMail sedia ada
+              Mail::to($assignedStaff->email)->send(new NotifyMail($data));
+          }
+      }
 
       $post = Complaintlist::find($id);
 
