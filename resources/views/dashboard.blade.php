@@ -7,120 +7,25 @@ a:link
     text-decoration: none;
 }
 
-/* Dashboard Hover Animations */
-.short-states {
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-    cursor: pointer !important;
-    position: relative !important;
-    overflow: hidden !important;
+.states-row {
+    display: flex;
+    flex-wrap: wrap;
 }
 
-.short-states::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: -100% !important;
-    width: 100% !important;
-    height: 100% !important;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
-    transition: left 0.6s ease !important;
+.states-row > .col-md-2 {
+    display: flex;
+    flex-direction: column;
 }
 
-.short-states:hover::before {
-    left: 100% !important;
+.states-row .underline {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
-.short-states:hover {
-    transform: translateY(-8px) scale(1.02) !important;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important;
-}
-
-.short-states .state-icon {
-    transition: all 0.3s ease !important;
-}
-
-.short-states:hover .state-icon {
-    transform: rotate(15deg) scale(1.1) !important;
-}
-
-.short-states .panel-body h1 {
-    transition: all 0.3s ease !important;
-}
-
-.short-states:hover .panel-body h1 {
-    transform: scale(1.1) !important;
-}
-
-.bg-default:hover {
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
-    border-color: #6c757d !important;
-}
-
-.bg-danger:hover {
-    background: linear-gradient(135deg, #ff6b6b, #ff5252) !important;
-    border-color: #ff5252 !important;
-}
-
-.bg-warning:hover {
-    background: linear-gradient(135deg, #ffc107, #ffb300) !important;
-    border-color: #ffb300 !important;
-}
-
-.bg-info:hover {
-    background: linear-gradient(135deg, #17a2b8, #138496) !important;
-    border-color: #138496 !important;
-}
-
-.bg-primary:hover {
-    background: linear-gradient(135deg, #007bff, #0056b3) !important;
-    border-color: #0056b3 !important;
-}
-
-.bg-success:hover {
-    background: linear-gradient(135deg, #28a745, #1e7e34) !important;
-    border-color: #1e7e34 !important;
-}
-
-/* Chart Container Animations */
-.panel {
-    transition: all 0.3s ease !important;
-}
-
-.panel:hover {
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
-}
-
-/* Form Controls */
-.form-control {
-    transition: all 0.3s ease !important;
-}
-
-.form-control:focus {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(0,123,255,0.15) !important;
-}
-
-/* Panel Heading Animations */
-.panel-heading {
-    transition: all 0.3s ease !important;
-}
-
-.panel:hover .panel-heading {
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
-}
-
-/* Icon Animations */
-.fa {
-    transition: all 0.3s ease !important;
-}
-
-.panel:hover .fa {
-    transform: scale(1.1) !important;
-}
-
-/* Smooth transitions for all interactive elements */
-* {
-    transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+.states-row .short-states {
+    flex: 1;
+    width: 100%;
 }
 </style>
 <script type="text/javascript">
@@ -532,7 +437,7 @@ $(document).ready(function(){
         </div>
  
         <!--states start-->
-        <div class="row">
+        <div class="row states-row">
             <div class="col-md-2">
                 <a class="underline" href="{{ route('complaintlist', ['status'=>1]) }}">
                 <div class="panel short-states bg-default">
