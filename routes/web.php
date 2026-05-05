@@ -212,5 +212,6 @@ Route::group(['middleware'=>['auth','is_user']], function (){
     Route::put('upd_password/{id}', [App\Http\Controllers\HomeController::class, 'upd_password'])->name('upd_password');
     Route::post('verified', [App\Http\Controllers\HomeController::class, 'verified'])->name('verified');
     Route::post('unverified', [App\Http\Controllers\HomeController::class, 'unverified'])->name('unverified');
+    Route::get('getSubCatUser/{id}', [App\Http\Controllers\HomeController::class, 'getSubCatUser'])->name('getSubCatUser');
     //Route::get('/user/complaintlist', [App\Http\Controllers\HomeController::class, 'complaintlist'])->name('user.complaintlist');
 });

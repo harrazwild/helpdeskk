@@ -158,6 +158,7 @@ $(document).ready(function(){
 
   $('#category').on('change', function(){
     var id = $(this).val();
+    var category_desc = $("#category option:selected").text().trim();
 
     if(id == 12){
       $('#mesyuarat').show();
@@ -166,7 +167,57 @@ $(document).ready(function(){
       $('#mesyuarat').hide();
       $('#aduan').show();
     }
+
+    if(category_desc == 'Aplikasi' && id){
+      $('#div-subkategori').show();
+      var url = '{{ route("getSubCatUser", ":id") }}';
+      url = url.replace(':id', id );
+      $.ajax({
+        type:"GET",
+        url: url,
+        success:function(res){        
+          if(res){
+            $("#subcategory").empty();
+            $("#subcategory").append('<option value="">Sila Pilih</option>');
+            $.each(res, function(key, value) {
+              $("#subcategory").append('<option value="'+ value.id +'">'+ value.subcategory_desc +'</option>');
+            });
+          }else{
+            $("#subcategory").empty();
+            $("#subcategory").append('<option value="">Sila Pilih</option>');
+          }
+        }
+      });
+    }else{
+      $('#div-subkategori').hide();
+      $("#subcategory").empty();
+      $("#subcategory").append('<option value="">Sila Pilih</option>');
+    }
   });
+
+  // Load subcategory on page load if old category is Aplikasi
+  var initial_cat_id = $('#category').val();
+  var initial_cat_desc = $("#category option:selected").text().trim();
+  if(initial_cat_desc == 'Aplikasi' && initial_cat_id){
+    $('#div-subkategori').show();
+    var url = '{{ route("getSubCatUser", ":id") }}';
+    url = url.replace(':id', initial_cat_id );
+    var old_subcat = "{{ old('subcategory') }}";
+    $.ajax({
+      type:"GET",
+      url: url,
+      success:function(res){        
+        if(res){
+          $("#subcategory").empty();
+          $("#subcategory").append('<option value="">Sila Pilih</option>');
+          $.each(res, function(key, value) {
+            var selected = (old_subcat == value.id) ? 'selected' : '';
+            $("#subcategory").append('<option value="'+ value.id +'" '+selected+'>'+ value.subcategory_desc +'</option>');
+          });
+        }
+      }
+    });
+  }
   
 });
 
@@ -324,6 +375,19 @@ $(function() {
                     </select>
                     @error('category')
                     <label id="name-error" class="error" for="category">{{$message}}</label>
+                    @enderror
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6" id="div-subkategori" style="display: none;">
+                <div class="form-group row">
+                  <label for="subcategory" class="col-sm-4 col-form-label">Sub Kategori <span style="color:red"y>*</span></label>
+                  <div class="col-sm-6">
+                    <select class="form-control @error('subcategory') is-invalid @enderror" name="subcategory" id="subcategory">
+                      <option value="">Sila Pilih</option>
+                    </select>
+                    @error('subcategory')
+                    <label id="name-error" class="error" for="subcategory">{{$message}}</label>
                     @enderror
                   </div>
                 </div>

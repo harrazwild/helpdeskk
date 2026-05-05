@@ -713,4 +713,13 @@ class HomeController extends Controller
 
     return json_encode($arr);
   }
+
+  public function getSubCatUser($id)
+  {
+      $subcategory = \App\Models\SubCategory::where('category_id', $id)
+                                ->where('active', 1)
+                                ->get();
+                   
+      return response()->json($subcategory);
+  }
 }
