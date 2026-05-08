@@ -128,6 +128,15 @@ class ComplaintlistController extends Controller
                                 });
                             })
                            ->count();
+    }elseif($role == 7 || $role == 8){ // Jika peranan Pegawai Aplikasi atau Vendor
+      $assignedSubcategories = DB::table('user_subcategories')
+                                  ->where('user_id', $user_id)
+                                  ->pluck('subcategory_id');
+      $task1 = Complaintlist::where('active', 1)
+                            ->where('category_id', 10) // Kategori Aplikasi
+                            ->whereIn('subcategory_id', $assignedSubcategories)
+                            ->whereIn('status_id', [2, 11]) // Dalam Tindakan atau Semakan
+                            ->count();
     }else{
       $task1 = '';                                     
     }
@@ -197,6 +206,13 @@ class ComplaintlistController extends Controller
 
     if($m){
       $complaints->whereMonth('date_open', $m);
+    }
+
+    if($role == 7 || $role == 8) {
+      $assignedSubcategories = DB::table('user_subcategories')
+                                  ->where('user_id', $user_id)
+                                  ->pluck('subcategory_id');
+      $complaints->whereIn('subcategory_id', $assignedSubcategories);
     }
 
     $complaints = $complaints->where('category_id', '!=', 12)
@@ -828,7 +844,7 @@ class ComplaintlistController extends Controller
     $s = Task::where('complaint_id', $id)
              ->first();
 
-    if(isset($request->staff) && $request->staff != $s->user_id){
+    if(isset($request->staff) && $s && $request->staff != $s->user_id){
       $task = Task::find($s->id);
       $task->user_id = $request->staff;
       $task->save();
@@ -885,7 +901,7 @@ class ComplaintlistController extends Controller
     $appno = Utilities::getAppNo($id);
     Audit::create($id, $appno, 'Kemaskini Aduan', $request->staff, $officer, null, $subcategory, $details, $status, $remark, $vendor);
 
-    if($status == 5){ // jika aduan selesai
+    if($status == 5 || $status == 11){ // jika aduan selesai atau dihantar untuk semakan
       $lokasi = '';
       if($request->block != '')
         $lokasi = "Blok ".$request->block;
@@ -903,7 +919,23 @@ class ComplaintlistController extends Controller
         'lokasi' => $lokasi,
         'location' => $compl->location
       ];
-      Mail::to($compl->email)->send(new VerifyMail($data));
+      
+      if($status == 5) {
+          Mail::to($compl->email)->send(new VerifyMail($data));
+      } else if($status == 11) {
+          // Emel Pegawai Aplikasi
+          $assignedUsers = User::leftJoin('user_subcategories', 'users.id', '=', 'user_subcategories.user_id')
+                               ->where('user_subcategories.subcategory_id', $subcategory)
+                               ->where('users.role_id', 7) // Pegawai Aplikasi
+                               ->where('users.active', 1)
+                               ->select('users.email')
+                               ->get();
+                               
+          foreach($assignedUsers as $u) {
+              Mail::to($u->email)->send(new NotifyMail($data));
+              sleep(1);
+          }
+      }
     }
 
     // Papar notifikasi berjaya
@@ -1342,6 +1374,13 @@ class ComplaintlistController extends Controller
                                     ->orWhere('complaints.status_id', 7);
                                 });
                        });
+    }elseif($role == 7 || $role == 8){
+      $assignedSubcategories = DB::table('user_subcategories')
+                                  ->where('user_id', $user_id)
+                                  ->pluck('subcategory_id');
+      $complaints->where('complaints.category_id', 10)
+                 ->whereIn('complaints.subcategory_id', $assignedSubcategories)
+                 ->whereIn('complaints.status_id', [2, 11]);
     }else{
       $complaints->where('tasks.user_id', $user_id)
                  ->where(function($query){

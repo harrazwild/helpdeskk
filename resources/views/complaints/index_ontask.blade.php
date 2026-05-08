@@ -136,7 +136,7 @@ $(document).ready(function(){
                                 <td>
                                 @if($data->status_id == 1)
                                     <label class="label label-default">{{ $data->status_desc }}</label>
-                                @elseif($data->status_id == 2 || $data->status_id == 3 || $data->status_id == 9)
+                                @elseif($data->status_id == 2 || $data->status_id == 3 || $data->status_id == 9 || $data->status_id == 11)
                                     <label class="label label-danger">{{ $data->status_desc }}</label>
                                 @elseif($data->status_id == 4 || $data->status_id == 5)
                                     <label class="label label-info">Tindakan Selesai</label>

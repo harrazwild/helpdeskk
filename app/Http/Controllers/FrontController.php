@@ -12,6 +12,7 @@ use App\Helper\Utilities;
 use App\Helper\EncID;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\NewUserMail;
@@ -226,6 +227,7 @@ class FrontController extends Controller
             'handphone' => 'required',
             'email' => 'required|email',
             'category' => 'required',
+            'subcategory' => 'required_if:category,10',
             'remarks' => 'required',
             'attachment.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:20480'
         ]
@@ -246,8 +248,15 @@ class FrontController extends Controller
     $post->handphone = $request->handphone;
     $post->email = $request->email;
     $post->category_id = $request->category;
+    $post->subcategory_id = $request->subcategory;
     $post->remarks = $request->remarks;
-    $post->status_id = 1;
+    
+    if($request->category == 10){
+      $post->status_id = 2; // Auto Dalam Tindakan if Aplikasi
+    } else {
+      $post->status_id = 1;
+    }
+    
     $post->date_open = date('Y-m-d H:i:s');
     $post->save();
     $id = $post->id;
@@ -297,9 +306,44 @@ class FrontController extends Controller
       'location' => $request->location
     ];
 
+    if($request->category == 10) {
+        $assignedUsers = User::leftJoin('user_subcategories', 'users.id', '=', 'user_subcategories.user_id')
+                             ->where('user_subcategories.subcategory_id', $request->subcategory)
+                             ->whereIn('users.role_id', [7, 8])
+                             ->where('users.active', 1)
+                             ->select('users.email')
+                             ->get();
+                             
+        foreach($assignedUsers as $u) {
+            if (!empty($u->email)) {
+                Log::info('[FrontController] Attempting NotifyMail', ['to' => $u->email, 'app_no' => $app_no]);
+                try {
+                    Mail::to($u->email)->send(new NotifyMail($data));
+                    Log::info('[FrontController] NotifyMail SENT OK', ['to' => $u->email]);
+                } catch (\Throwable $e) {
+                    Log::error('[FrontController] NotifyMail FAILED', ['to' => $u->email, 'error' => $e->getMessage()]);
+                }
+                sleep(10);
+            }
+        }
+    }
+
     Audit::create($id, $app_no, 'Log Aduan Baru', null, null, null, null, null, null, null, null);
-    Mail::to($request->email)->send(new ComplaintMail($data));
-    Mail::to('helpdesk@audit.gov.my')->send(new NotifyMail($data));
+    Log::info('[FrontController] Attempting ComplaintMail', ['to' => $request->email, 'app_no' => $app_no]);
+    try {
+        Mail::to($request->email)->send(new ComplaintMail($data));
+        Log::info('[FrontController] ComplaintMail SENT OK', ['to' => $request->email]);
+    } catch (\Throwable $e) {
+        Log::error('[FrontController] ComplaintMail FAILED', ['to' => $request->email, 'error' => $e->getMessage()]);
+    }
+    sleep(5);
+    Log::info('[FrontController] Attempting helpdesk NotifyMail', ['to' => 'helpdesk@audit.gov.my', 'app_no' => $app_no]);
+    try {
+        Mail::to('helpdesk@audit.gov.my')->send(new NotifyMail($data));
+        Log::info('[FrontController] Helpdesk NotifyMail SENT OK');
+    } catch (\Throwable $e) {
+        Log::error('[FrontController] Helpdesk NotifyMail FAILED', ['error' => $e->getMessage()]);
+    }
 
     // Audit trail
     Notify::flash('success', __('Aduan telah dihantar. Sila semak emel anda untuk No Aduan.'), 'BERJAYA');

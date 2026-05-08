@@ -18,6 +18,23 @@ $(document).ready(function(){
         $('#sectionDIV').hide();
     }
 
+    if($('#role_id').val() == 7 || $('#role_id').val() == 8){
+        $('#subcategoriesDIV').show();
+        $('#subcategories').select2({ width: '100%' });
+    }else{
+        $('#subcategoriesDIV').hide();
+    }
+
+    $('#role_id').on('change',function(e) {
+        var id = $(this).val();
+        if(id == 7 || id == 8){
+          $('#subcategoriesDIV').show();
+          $('#subcategories').select2({ width: '100%' });
+        }else{
+          $('#subcategoriesDIV').hide();
+        }
+    });
+
     $('.sector').on('change',function(e) {
         var id = $(this).val();
 
@@ -187,6 +204,20 @@ $(document).ready(function(){
                                 </select>
                                 @error('section_id')
                                 <label id="name-error" class="error" for="section_id">{{$message}}</label>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-group" id="subcategoriesDIV" style="display:none;">
+                            <label class=" col-sm-2 control-label">Kategori Aplikasi</label>
+                            <div class="col-lg-10">
+                                <select name="subcategories[]" id="subcategories" class="form-control select2 @error('subcategories') is-invalid @enderror" multiple>
+                                    @foreach($subcategories as $row)
+                                    <option value="{{ $row->id }}" {{ in_array($row->id, $user_subcategories) ? 'selected' : '' }} >{{ $row->subcategory_desc }}</option>
+                                    @endforeach
+                                </select>
+                                <span class="help-block">Pilih aplikasi yang dijaga. Boleh pilih lebih dari satu (Khusus untuk Peranan Pegawai Aplikasi & Vendor).</span>
+                                @error('subcategories')
+                                <label id="name-error" class="error" for="subcategories">{{$message}}</label>
                                 @enderror
                             </div>
                         </div>

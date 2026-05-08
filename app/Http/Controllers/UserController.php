@@ -28,6 +28,7 @@ use App\Models\Department;
 use App\Models\Grade;
 use App\Models\Role;
 use App\Models\Position;
+use App\Models\SubCategory;
 use App\Mail\NewUserMail;
 use DataTables;
 
@@ -159,7 +160,9 @@ class UserController extends Controller
   	$sections = Section::where('active', 1)
   				   	         ->get();
 
-  	return view('auth.create', compact('roles', 'sectors', 'departments', 'grade', 'positions', 'sections'));
+    $subcategories = SubCategory::where('active', 1)->get();
+
+  	return view('auth.create', compact('roles', 'sectors', 'departments', 'grades', 'positions', 'sections', 'subcategories'));
   }
 
   /** 
@@ -217,6 +220,17 @@ class UserController extends Controller
     $user->save();
     $id = $user->id;
 
+    if($request->has('subcategories') && is_array($request->subcategories)) {
+        foreach($request->subcategories as $sub_id) {
+            DB::table('user_subcategories')->insert([
+                'user_id' => $id,
+                'subcategory_id' => $sub_id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }
+    }
+
     // Papar notifikasi berjaya
     if($user){
       
@@ -270,7 +284,10 @@ class UserController extends Controller
     $sections = Section::where('active', 1)
                        ->get();
 
-  	return view('auth.edit', compact('user', 'roles', 'sectors', 'departments', 'grade', 'positions', 'sections'));			 			
+    $subcategories = SubCategory::where('active', 1)->get();
+    $user_subcategories = DB::table('user_subcategories')->where('user_id', $id)->pluck('subcategory_id')->toArray();
+
+  	return view('auth.edit', compact('user', 'roles', 'sectors', 'departments', 'grades', 'positions', 'sections', 'subcategories', 'user_subcategories'));			 			
   }
 
   /** 
@@ -323,6 +340,20 @@ class UserController extends Controller
                     'handphone' => $request->handphone,
                     'email' => $request->email,
               	]);
+
+    if($request->has('subcategories') && is_array($request->subcategories)) {
+        DB::table('user_subcategories')->where('user_id', $id)->delete();
+        foreach($request->subcategories as $sub_id) {
+            DB::table('user_subcategories')->insert([
+                'user_id' => $id,
+                'subcategory_id' => $sub_id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }
+    } else {
+        DB::table('user_subcategories')->where('user_id', $id)->delete();
+    }
 
     // Audit trail
   	Audit::create($id, null, 'Kemaskini Pengguna', null, null, null, null, null, null, null, null);
@@ -460,7 +491,7 @@ class UserController extends Controller
     $sections = Section::where('active', 1)
                        ->get();
 
-    return view('auth.profile', compact('user', 'sectors', 'departments', 'grade', 'positions', 'sections'));
+    return view('auth.profile', compact('user', 'sectors', 'departments', 'grades', 'positions', 'sections'));
   }
 
   /** 

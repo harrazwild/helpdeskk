@@ -366,6 +366,7 @@ class HomeController extends Controller
         'telephone' => 'required|numeric',
         'handphone' => 'required|numeric',
         'category' => 'required',
+        'subcategory' => 'required_if:category,10',
         'remarks' => 'required',
         'attachment.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:20480'
       ]);
@@ -387,8 +388,15 @@ class HomeController extends Controller
       $post->telephone = $request->telephone;
       $post->handphone = $request->handphone;
       $post->category_id = $request->category;
+      $post->subcategory_id = $request->subcategory;
       $post->remarks = $request->remarks;
-      $post->status_id = 1;
+
+      if($request->category == 10){
+        $post->status_id = 2; // Auto Dalam Tindakan jika Aplikasi
+      } else {
+        $post->status_id = 1;
+      }
+
       $post->date_open = date('Y-m-d H:i:s');
       $post->save();
       $id = $post->id;
@@ -439,6 +447,21 @@ class HomeController extends Controller
 
       // Audit trail
       Audit::create($id, $app_no, 'Pengadu Log Aduan Baru', null, null, null, null, null, 1, null, null);
+      
+      if($request->category == 10) {
+          $assignedUsers = User::leftJoin('user_subcategories', 'users.id', '=', 'user_subcategories.user_id')
+                               ->where('user_subcategories.subcategory_id', $request->subcategory)
+                               ->whereIn('users.role_id', [7, 8])
+                               ->where('users.active', 1)
+                               ->select('users.email')
+                               ->get();
+                               
+          foreach($assignedUsers as $u) {
+              Mail::to($u->email)->send(new NotifyMail($data));
+              sleep(1);
+          }
+      }
+
       // Emel team helpdesk
       Mail::to('helpdesk@audit.gov.my')->send(new NotifyMail($data));
 

@@ -468,7 +468,7 @@ $(document).ready(function(){
       @php
       if($complaint->status_id == 1){
           $panel = 'panel-default';
-      }elseif($complaint->status_id == 2 || $complaint->status_id == 3 || $complaint->status_id == 9){
+      }elseif($complaint->status_id == 2 || $complaint->status_id == 3 || $complaint->status_id == 9 || $complaint->status_id == 11){
           $panel = 'panel-danger';
       }elseif($complaint->status_id == 4 || $complaint->status_id == 5){
           $panel = 'panel-info';
@@ -476,6 +476,8 @@ $(document).ready(function(){
           $panel = 'panel-primary';       
       }elseif($complaint->status_id == 8){
           $panel = 'panel-success';
+      }else{
+          $panel = 'panel-default';
       }
       @endphp
 
@@ -488,6 +490,7 @@ $(document).ready(function(){
           </div>
           <div class="panel-body">
           
+            @if(Auth::user()->role_id != 7 && Auth::user()->role_id != 8)
             <div class="form-group">
               <label class=" col-sm-3 control-label">Pegawai Teknikal</label>
               <div class="col-lg-9">
@@ -513,14 +516,26 @@ $(document).ready(function(){
                 @endif <!-- !end pentadbir -->
               </div>
             </div>
+            @endif
             <div class="form-group">
               <label class=" col-sm-3 control-label">Status Tindakan</label>
               <div class="col-lg-5">
-                <select class="form-control" name="status" id="status">
+                <select class="form-control" name="status" id="status" required>
                   <option value="">Sila Pilih</option>
-                  <option value="5">Selesai</option>
-                  <option value="3">Tindakan Pegawai</option>
-                  <option value="9">Tindakan Pembekal</option>
+                  @if(Auth::user()->role_id == 8)
+                    <option value="11">Hantar Untuk Semakan</option>
+                  @elseif(Auth::user()->role_id == 7)
+                    @if($complaint->status_id == 11)
+                      <option value="5">Sahkan Selesai</option>
+                      <option value="2">Minta Pembetulan (Kembali ke Vendor)</option>
+                    @else
+                      <option value="5">Selesai</option>
+                    @endif
+                  @else
+                    <option value="5">Selesai</option>
+                    <option value="3">Tindakan Pegawai</option>
+                    <option value="9">Tindakan Pembekal</option>
+                  @endif
                 </select>
               </div>
             </div>

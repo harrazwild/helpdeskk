@@ -274,6 +274,48 @@ $(document).ready(function(){
 
   });
 
+  // Load subcategory and staff on page load if category was already selected (e.g. after validation error)
+  var initial_category = $("#category").val();
+  if(initial_category){
+      var url_1 = '{{ route("getSubCat", ":id") }}';
+      url_1 = url_1.replace(':id', initial_category);
+
+      var old_subcat = "{{ old('subcategory') }}";
+
+      // dapatkan list utk dropdown sub kategori semasa page load
+      $.ajax({
+        type:"GET",
+        url: url_1,
+        success:function(res){        
+          $("#subcategory").empty();
+          $("#subcategory").append('<option value="">Sila Pilih</option>');
+          $.each(res,function(key,value){
+            var selected = (old_subcat == value.id) ? 'selected' : '';
+            $("#subcategory").append('<option value="'+value.id+'" '+selected+'>'+value.subcategory_desc+'</option>');
+          });
+        }
+      });
+
+      var url_2 = '{{ route("getStaff", ":id") }}';
+      url_2 = url_2.replace(':id', initial_category);
+
+      var old_staff = "{{ old('staff') }}";
+
+      // dapatkan list utk dropdown pelaksana semasa page load
+      $.ajax({
+        type:"GET",
+        url: url_2,
+        success:function(res){        
+          $("#staff").empty();
+          $("#staff").append('<option value="">Sila Pilih</option>');
+          $.each(res,function(key,value){
+            var selected = (old_staff == value.id) ? 'selected' : '';
+            $("#staff").append('<option value="'+value.id+'" '+selected+'>'+value.name+'</option>');
+          });
+        }
+      });
+  }
+
 });
 </script>
 <div class="ui-content-body">  

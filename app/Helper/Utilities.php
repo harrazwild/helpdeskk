@@ -376,8 +376,18 @@ class Utilities
                                 });
                             })
                            ->count();
+    }elseif($role == 7 || $role == 8){
+      $subcats = \Illuminate\Support\Facades\DB::table('user_subcategories')->where('user_id', $user_id)->pluck('subcategory_id')->toArray();
+      $noti = Complaintlist::where('active', 1)->whereIn('subcategory_id', $subcats);
+      
+      if($role == 7) {
+           $noti = $noti->whereIn('status_id', [2, 11]);
+      } else {
+           $noti = $noti->whereIn('status_id', [2, 7, 9]);
+      }
+      $noti = $noti->count();
     }else{
-      $noti = '';                                     
+      $noti = 0;                                     
     }
 
     return $noti;
@@ -427,8 +437,18 @@ class Utilities
                             })
                            ->select('complaints.id', 'complaints.application_no', 'complaints.remarks')
                            ->get();
+    }elseif($role == 7 || $role == 8){
+      $subcats = \Illuminate\Support\Facades\DB::table('user_subcategories')->where('user_id', $user_id)->pluck('subcategory_id')->toArray();
+      $comp = Complaintlist::where('active', 1)->whereIn('subcategory_id', $subcats);
+      
+      if($role == 7) {
+           $comp = $comp->whereIn('status_id', [2, 11]);
+      } else {
+           $comp = $comp->whereIn('status_id', [2, 7, 9]);
+      }
+      $comp = $comp->select('complaints.id', 'complaints.application_no', 'complaints.remarks')->get();
     }else{
-      $comp = '';                          
+      $comp = [];                          
     }
 
     return $comp;
@@ -471,7 +491,7 @@ class Utilities
                            ->orderBy('complaints.tkh_mula', 'DESC')
                            ->get();
     }else{
-      $comp = '';                          
+      $comp = [];                          
     }
 
     return $comp;
