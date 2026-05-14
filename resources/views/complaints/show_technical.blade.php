@@ -526,10 +526,10 @@ $(document).ready(function(){
                     <option value="11">Hantar Untuk Semakan</option>
                   @elseif(Auth::user()->role_id == 7)
                     @if($complaint->status_id == 11)
-                      <option value="5">Sahkan Selesai</option>
+                      <option value="8">Sahkan Selesai</option>
                       <option value="2">Minta Pembetulan (Kembali ke Vendor)</option>
                     @else
-                      <option value="5">Selesai</option>
+                      <option value="8">Selesai</option>
                     @endif
                   @else
                     <option value="5">Selesai</option>

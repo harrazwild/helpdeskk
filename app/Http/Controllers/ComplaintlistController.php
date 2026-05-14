@@ -213,6 +213,10 @@ class ComplaintlistController extends Controller
                                   ->where('user_id', $user_id)
                                   ->pluck('subcategory_id');
       $complaints->whereIn('subcategory_id', $assignedSubcategories);
+
+      if($role == 8) {
+          $complaints->whereIn('status_id', [2, 11]);
+      }
     }
 
     $complaints = $complaints->where('category_id', '!=', 12)
@@ -873,6 +877,10 @@ class ComplaintlistController extends Controller
       }elseif($status == 9){
         $post->vendor_id = $vendor;
         $post->status_id = $status;
+      }elseif($status == 8){
+        $post->status_id = $status;
+        $post->date_job_done = date('Y-m-d H:i:s');
+        $post->date_close = date('Y-m-d H:i:s');
       }else{
         $post->status_id = $status;
         $post->date_job_done = date('Y-m-d H:i:s');
@@ -901,7 +909,7 @@ class ComplaintlistController extends Controller
     $appno = Utilities::getAppNo($id);
     Audit::create($id, $appno, 'Kemaskini Aduan', $request->staff, $officer, null, $subcategory, $details, $status, $remark, $vendor);
 
-    if($status == 5 || $status == 11){ // jika aduan selesai atau dihantar untuk semakan
+    if($status == 5 || $status == 11 || $status == 8){ // jika aduan selesai atau dihantar untuk semakan atau ditutup
       $lokasi = '';
       if($request->block != '')
         $lokasi = "Blok ".$request->block;
@@ -922,6 +930,8 @@ class ComplaintlistController extends Controller
       
       if($status == 5) {
           Mail::to($compl->email)->send(new VerifyMail($data));
+      } else if($status == 8) {
+          Mail::to($compl->email)->send(new DoneMail($data));
       } else if($status == 11) {
           // Emel Pegawai Aplikasi
           $assignedUsers = User::leftJoin('user_subcategories', 'users.id', '=', 'user_subcategories.user_id')

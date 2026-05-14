@@ -575,28 +575,31 @@ class HomeController extends Controller
     $id = EncID::get($id); // Decrypt ID yang dihantar
       
     // validate data yang diperlukan
-    $validatedData = $request->validate(
-      [
-        'name' => 'required',
-        'ic_number' => 'required',
-        'gred' => 'required',
-        'jawatan' => 'required',
-        'sector' => 'required',
-        'department' => 'required',
-        'block' => 'required',
-        'level' => 'required',
-        'zone' => 'required',
-        'email' => 'required',
-        'telephone' => 'required',
-        'handphone' => 'required',
-      ]
-    );
+    $rules = [
+      'name' => 'required',
+      'ic_number' => 'required',
+      'sector' => 'required',
+      'department' => 'required',
+      'block' => 'required',
+      'level' => 'required',
+      'zone' => 'required',
+      'email' => 'required',
+      'telephone' => 'required',
+      'handphone' => 'required',
+    ];
+
+    if (Auth::user()->role_id != 8) {
+        $rules['gred'] = 'required';
+        $rules['jawatan'] = 'required';
+    }
+
+    $validatedData = $request->validate($rules);
 
     // umpuk data yang dihantar ke field di DB
     $ic_number = $request->ic_number;
     $name = ucwords(strtolower($request->name));
-    $gred = $request->gred;
-    $jawatan = $request->jawatan;
+    $gred = Auth::user()->role_id == 8 ? Auth::user()->gred_code : $request->gred;
+    $jawatan = Auth::user()->role_id == 8 ? Auth::user()->jaw_code : $request->jawatan;
     $sector = $request->sector;
     $department = $request->department;
     $block = $request->block;

@@ -33,7 +33,7 @@ $(document).ready(function(){
                 $(".department").empty();
                 $(".department").append('<option value="">Sila Pilih</option>');
                 $.each(res, function(key, value) {
-                  $(".department").append('<option value="'+ value.bah_code +'">'+ value.bah_desc +'</option>');
+                  $(".department").append('<option value="'+ value.department_code +'">'+ value.department_desc +'</option>');
                 });
               }else{
                 $(".department").empty();
@@ -88,6 +88,7 @@ $(document).ready(function(){
                                 @enderror
                             </div>
                         </div>
+                        @if(Auth::user()->role_id != 8)
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="form-group">
@@ -122,6 +123,7 @@ $(document).ready(function(){
                                 </div>
                             </div>
                         </div>
+                        @endif
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="form-group">
@@ -130,7 +132,7 @@ $(document).ready(function(){
                                         <select name="sector_id" id="sector_id" class="form-control sector @error('sector_id') is-invalid @enderror">
                                             <option value="">Sila Pilih</option>
                                             @foreach($sectors as $row)
-                                            <option value="{{ $row->sec_code }}" {{ $user->sector_code == $row->sector_code ? 'selected' : '' }} >{{ $row->sector_desc }}</option>
+                                            <option value="{{ $row->sector_code }}" {{ $user->sector_code == $row->sector_code ? 'selected' : '' }} >{{ $row->sector_desc }}</option>
                                             @endforeach
                                         </select>
                                         @error('sector_id')

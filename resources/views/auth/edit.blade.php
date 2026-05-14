@@ -25,6 +25,12 @@ $(document).ready(function(){
         $('#subcategoriesDIV').hide();
     }
 
+    if($('#role_id').val() == 8){
+        $('#gredJawatanDIV').hide();
+    }else{
+        $('#gredJawatanDIV').show();
+    }
+
     $('#role_id').on('change',function(e) {
         var id = $(this).val();
         if(id == 7 || id == 8){
@@ -32,6 +38,12 @@ $(document).ready(function(){
           $('#subcategories').select2({ width: '100%' });
         }else{
           $('#subcategoriesDIV').hide();
+        }
+
+        if(id == 8){
+            $('#gredJawatanDIV').hide();
+        }else{
+            $('#gredJawatanDIV').show();
         }
     });
 
@@ -125,7 +137,7 @@ $(document).ready(function(){
                                 @enderror
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" id="gredJawatanDIV">
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label class=" col-sm-4 control-label">Gred</label>

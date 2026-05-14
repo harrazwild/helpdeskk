@@ -73,6 +73,7 @@ $(document).ready(function(){
                                 @enderror
                             </div>
                         </div>
+                        @if(Auth::user()->role_id != 8)
                         <div class="row">
                             <div class="col-sm-4">
                                 <div class="form-group">
@@ -107,6 +108,7 @@ $(document).ready(function(){
                                 </div>
                             </div>
                         </div>  
+                        @endif
                         <div class="form-group">
                             <label class=" col-sm-2 control-label">Sektor</label>
                             <div class="col-lg-3">

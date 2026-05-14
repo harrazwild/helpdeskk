@@ -502,12 +502,9 @@ class UserController extends Controller
     $id = EncID::get($id); // Decrypt ID yang dihantar
 
     // validate data yang diperlukan
-    $validatedData = $request->validate(
-      [
+    $rules = [
         'ic_number' => 'required',
         'name' => 'required',
-        'grade_id' => 'required',
-        'position_id' => 'required',
         'sector_id' => 'required',
         'department_id' => 'required',
         'block' => 'required',
@@ -516,8 +513,14 @@ class UserController extends Controller
         'telephone' => 'required',
         'handphone' => 'required',
         'email' => 'required'
-      ]
-    );
+    ];
+
+    if (Auth::user()->role_id != 8) {
+        $rules['grade_id'] = 'required';
+        $rules['position_id'] = 'required';
+    }
+
+    $validatedData = $request->validate($rules);
 
     if($request->department_id == '2.1.3'){
       $section = $request->section_id;
@@ -525,13 +528,16 @@ class UserController extends Controller
       $section = null;
     }
 
+    $grade_id = Auth::user()->role_id == 8 ? Auth::user()->gred_code : $request->grade_id;
+    $position_id = Auth::user()->role_id == 8 ? Auth::user()->jaw_code : $request->position_id;
+
     // Kemaskini data dalam DB mengikut ID diatas
     $user = User::where('id', $id)
                 ->update([
                     'ic_number' => $request->ic_number,
                     'name' => $request->name,
-                    'gred_code' => $request->grade_id,
-                    'jaw_code' => $request->position_id,
+                    'gred_code' => $grade_id,
+                    'jaw_code' => $position_id,
                     'sector_code' => $request->sector_id,
                     'department_code' => $request->department_id,
                     'block' => $request->block,
